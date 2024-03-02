@@ -4,15 +4,18 @@ from math import sin, radians, degrees, copysign, hypot
 from pygame.math import Vector2
 
 import utils
-from utils import calculate_rectangle_corners, create_ray, draw_segments, get_collision_by_segments, get_nearest_points
+from utils import calculate_rectangle_corners, create_ray, draw_segments
 
-from constant import RAY_SIZE, CAR_FOV
 from engine.window import PPU, unite_to_pixel
 
 
+RAY_SIZE = 10
+CAR_FOV = 180
+
+
 class Car:
-    def __init__(self, x, y, dim=(1, 0.5), angle=0.0, length=0.5, max_steering=30, max_acceleration=5.0):
-        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "car.png")
+    def __init__(self, x, y, dim=(1.25, 0.625), angle=0.0, length=0.5, max_steering=30, max_acceleration=5.0):
+        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "imgs/car_1.png")
         img = pygame.image.load(image_path)
 
         dimW, dimH = dim
@@ -54,9 +57,9 @@ class Car:
 
         if steer_left != steer_right:
             s_factor = 1 if steer_left else -1 if steer_right else 0
-            self.set_steer(dt, s_factor)
+            self.steer(dt, s_factor)
         else:
-            self.set_steer(dt, 0)
+            self.steer(dt, 0)
 
     def set_acceleration(self, dt, factor):
         """
@@ -81,7 +84,7 @@ class Car:
 
         self.acceleration = max(-self.max_acceleration, min(self.acceleration, self.max_acceleration))
 
-    def set_steer(self, dt, direction):
+    def steer(self, dt, direction):
         """
         :param dt:
         :param direction: 1 for left, -1 for right
@@ -131,4 +134,3 @@ class Car:
             view = [hypot(v[0] - self.position[0], v[1] - self.position[1]) for v in view]
 
         return view
-

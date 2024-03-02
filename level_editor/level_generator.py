@@ -2,8 +2,7 @@ import json
 
 import pygame
 
-from engine.window import Window
-from engine.window import unite_to_pixel, PPU
+from engine.window import Window, unite_to_pixel, PPU
 
 import utils
 from utils import draw_segments
@@ -11,34 +10,34 @@ from utils import draw_segments
 import random
 
 
-def coordonnee_valide(i, j, min_i, max_i, min_j, max_j):
+def check_coordonates(i, j, min_i, max_i, min_j, max_j):
     return min_i <= i <= max_i and min_j <= j <= max_j
 
 
-def cases_autour(i, j, min_i, max_i, min_j, max_j):
+def get_surrounding_cells(i, j, min_i, max_i, min_j, max_j):
     cases = []
-    if coordonnee_valide(i-1, j, min_i, max_i, min_j, max_j):
+    if check_coordonates(i - 1, j, min_i, max_i, min_j, max_j):
         cases.append((i-1, j))
-    if coordonnee_valide(i+1, j, min_i, max_i, min_j, max_j):
+    if check_coordonates(i + 1, j, min_i, max_i, min_j, max_j):
         cases.append((i+1, j))
-    if coordonnee_valide(i, j-1, min_i, max_i, min_j, max_j):
+    if check_coordonates(i, j - 1, min_i, max_i, min_j, max_j):
         cases.append((i, j-1))
-    if coordonnee_valide(i, j+1, min_i, max_i, min_j, max_j):
+    if check_coordonates(i, j + 1, min_i, max_i, min_j, max_j):
         cases.append((i, j+1))
     return cases
 
 
-def generate_terrain(lim_w, lim_h, min, max):
+def create_level(lim_w, lim_h, min, max):
     i, j = random.randint(0, lim_w), random.randint(0, lim_h)
     cells = [(i, j)]
 
     for num in range(max):
         i, j = cells[len(cells)-1]
-        c = [c for c in cases_autour(i, j, 0, lim_w, 0, lim_h) if c not in cells]
+        c = [c for c in get_surrounding_cells(i, j, 0, lim_w, 0, lim_h) if c not in cells]
 
         if len(c) == 0:
             if len(cells) < min:
-                return generate_terrain(lim_w, lim_h, min, max)
+                return create_level(lim_w, lim_h, min, max)
             else:
                 return cells
         else:
@@ -47,7 +46,7 @@ def generate_terrain(lim_w, lim_h, min, max):
     return cells
 
 
-def determiner_tuiles(cells, tuiles):
+def get_correct_tile(cells, tuiles):
     res = []
 
     x1, y1 = cells[0]
@@ -121,22 +120,22 @@ def get_wall_checkpoint(field, tuiles):
         t_s = tuiles[i]["SG"]
         t_c = tuiles[i]["CK"]
 
-        for p1, p2 in coords_liste_points_tuile(t_s, x, y, 6):
+        for p1, p2 in get_tiles_coordinates(t_s, x, y, 6):
             walls.append((p1, p2))
 
-        ck.append(coords_liste_points_tuile([t_c], x, y, 6)[0])
+        ck.append(get_tiles_coordinates([t_c], x, y, 6)[0])
 
     return walls, ck
 
 
-def coords_point_tuile(i, j, taille_tuile):
+def get_tile_coordinates(i, j, taille_tuile):
     x = i * taille_tuile
     y = j * taille_tuile
     return x, y
 
 
-def coords_liste_points_tuile(segments, i, j, taille_tuile):
-    x_offset, y_offset = coords_point_tuile(i, j, taille_tuile)
+def get_tiles_coordinates(segments, i, j, taille_tuile):
+    x_offset, y_offset = get_tile_coordinates(i, j, taille_tuile)
     return [(((x1 + x_offset), (y1 + y_offset)), ((x2 + x_offset), (y2 + y_offset))) for (x1, y1), (x2, y2) in segments]
 
 
@@ -144,22 +143,22 @@ def segments_unite_to_px(segments):
     return [(unite_to_pixel(p1), unite_to_pixel(p2)) for p1, p2 in segments]
 
 
-def load_tuiles():
+def load_tiles():
     with open('tuiles.json', 'r') as f:
         data = json.load(f)
 
     return data
 
 
-def create_terrain_no_gui(lim_w=5, lim_h=2, min=10, max=30):
-    tuiles_templates = load_tuiles()
+def create_level_no_gui(lim_w=5, lim_h=2, min=10, max=30):
+    tuiles_templates = load_tiles()
 
-    field = generate_terrain(lim_w, lim_h, min, max)
-    tuiles = determiner_tuiles(field, tuiles_templates)
+    field = create_level(lim_w, lim_h, min, max)
+    tuiles = get_correct_tile(field, tuiles_templates)
 
     walls, checkpoints = get_wall_checkpoint(field, tuiles)
 
-    utils.save_walls_bis("level.json", PPU, walls, checkpoints)
+    utils.save_walls("level.json", PPU, walls, checkpoints)
 
 
 class level_generator(Window):
@@ -168,10 +167,10 @@ class level_generator(Window):
 
         self.t_w, self.t_h, self.m_w, self.m_h = self.init_tab()
 
-        self.tuiles_templates = load_tuiles()
+        self.tuiles_templates = load_tiles()
 
-        self.field = generate_terrain(5, 2, 10, 30)
-        self.tuiles = determiner_tuiles(self.field, self.tuiles_templates)
+        self.field = create_level(5, 2, 10, 30)
+        self.tuiles = get_correct_tile(self.field, self.tuiles_templates)
 
         self.walls, self.checkpoints = get_wall_checkpoint(self.field, self.tuiles)
 
@@ -183,17 +182,17 @@ class level_generator(Window):
 
         return t_w, t_h, m_w, m_h
 
-    def generate_terrain(self):
-        self.field = generate_terrain(5, 2, 10, 30)
-        self.tuiles = determiner_tuiles(self.field, self.tuiles_templates)
+    def create_level(self):
+        self.field = create_level(5, 2, 10, 30)
+        self.tuiles = get_correct_tile(self.field, self.tuiles_templates)
 
         self.walls, self.checkpoints = get_wall_checkpoint(self.field, self.tuiles)
 
     def logic(self, dt, events, pressed):
         if pressed[pygame.K_r]:
-            self.generate_terrain()
+            self.create_level()
         if pressed[pygame.K_s]:
-            utils.save_walls_bis("level.json", PPU, self.walls, self.checkpoints)
+            utils.save_walls("level.json", PPU, self.walls, self.checkpoints)
 
     def draw(self):
         self.screen.fill((0, 0, 0))

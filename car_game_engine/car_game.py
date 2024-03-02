@@ -1,7 +1,7 @@
 import pygame
 import math
 
-from car_game.car import Car
+from car_game_engine.car import Car
 
 import utils
 from utils import load_walls, get_all_collisions, center_between_points, draw_segments
@@ -53,28 +53,6 @@ class Game(Window):
         self.crash = False
         self.victory = False
 
-    def logic_old(self, dt, events, pressed):
-        # Keyboards Events
-        self.car.control(dt,
-                         pressed[pygame.K_UP],
-                         pressed[pygame.K_DOWN],
-                         pressed[pygame.K_SPACE],
-                         pressed[pygame.K_LEFT],
-                         pressed[pygame.K_RIGHT]
-                         )
-        self.car.update(dt)
-
-        collide_walls = get_all_collisions(self.car.get_segment(), self.walls)
-        collide_checkpoint = get_all_collisions(self.car.get_segment(), self.checkpoints)
-
-        self.crash = len(collide_walls) != 0
-        self.validated_checkpoints.extend([c for c in collide_checkpoint if c not in self.validated_checkpoints])
-        if len(self.validated_checkpoints) == len(self.checkpoints):
-            self.victory = True
-
-        if self.crash or self.victory:
-            self.__reset__()
-
     def logic(self, dt, events, pressed):
         up = pressed[pygame.K_UP],
         down = pressed[pygame.K_DOWN],
@@ -109,8 +87,8 @@ class Game(Window):
     def draw(self):
         self.screen.fill((0, 0, 0))
 
-        draw_segments(self.screen, utils.RED, self.walls)
-        draw_segments(self.screen, utils.YELLOW, self.checkpoints)
+        draw_segments(self.screen, utils.PURPLE, self.walls)
+        draw_segments(self.screen, utils.BLUE, self.checkpoints)
         draw_segments(self.screen, utils.GREEN, [self.checkpoints[len(self.checkpoints) - 1]])
 
         self.car.draw(self.screen, show_ray=False)

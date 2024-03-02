@@ -200,7 +200,6 @@ def get_nearest_point(origin, points):
     Détermine le point le plus proche de l'origine
     :param origin: x,y
     :param points: list[(x,y), ...]
-    :param give_dist: Boolean
     :return: x,y
     """
     min_distance = float('inf')
@@ -220,7 +219,6 @@ def get_nearest_points(origin, points):
     Pour chaque list de point de points, détermine le point le plus proche de l'origine
     :param origin:
     :param points:
-    :param give_dist:
     :return:
     """
     return [get_nearest_point(origin, p) for p in points]
@@ -258,31 +256,6 @@ def create_ray(p, angle, size):
 
 
 def save_walls(filename, ppu, walls, checkpoints):
-    data = {
-        "ppu": ppu,
-        "walls": [],
-        "checkpoints": []
-    }
-
-    for w in walls:
-        p1 = w.p1
-        p2 = w.p2
-        data["walls"].append({"p1": p1, "p2": p2})
-
-    for c in checkpoints:
-        p1 = c.p1
-        p2 = c.p2
-        data["checkpoints"].append({"p1": p1, "p2": p2})
-
-    path = os.path.dirname(os.path.abspath(__file__))
-    # path = os.path.dirname(os.getcwd())
-    json_path = os.path.join(path, filename)
-
-    with open(json_path, 'w') as file:
-        json.dump(data, file, indent=4)
-
-
-def save_walls_bis(filename, ppu, walls, checkpoints):
     data = {
         "ppu": ppu,
         "walls": [],
