@@ -55,9 +55,6 @@ def eval_genome(genome_id, genome):
 
         nb_frames += 1
 
-    if game.crash:
-        fitness += nb_frames
-
     if game.victory:
         fitness += (1 / nb_frames) * 1000
 

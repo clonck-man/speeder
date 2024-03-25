@@ -1,4 +1,6 @@
-# Speeeeeeeeeder ![](https://github.com/clonck-man/speeder/blob/main/car_game_engine/imgs/car_1.png)
+![](./imgs/banner.png)
+
+# Speeeeeeeeeder 
 
 Speeder est un projet de conduite automatique d'une voiture dans un jeu vidéo via intelligence artificielle.
 
@@ -9,6 +11,8 @@ Pour le moment il se découpe en plusieurs composants distincts :
 - un outil basique de création de terrain à la main
 
 Ce projet est le premier d'une série plus large de petits projets que je mène pour améliorer mes compétences dans le domaine de l'IA. Je n'ai suivi aucun tutoriel ou cours en ligne.
+
+![](./imgs/demo.gif)
 
 ## Versions
 Pour le moment le projet est en 1.0
